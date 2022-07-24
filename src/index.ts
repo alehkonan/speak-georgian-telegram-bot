@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { Telegraf } from 'telegraf';
 import { history } from './services/history.js';
 import { translateText } from './services/translator.js';
+import { detectLanguage } from './utils/detectLanguage.js';
 
 const token = process.env.TELEGRAM_API_TOKEN as string;
 
@@ -12,26 +13,21 @@ bot.start((ctx) => {
   ctx.reply(
     'Here you can translate any phrase to georgian language. Just send your message'
   );
-  ctx.reply('To stop bot send /quit');
-  ctx.reply('For help send /help');
-});
-
-bot.command('/quit', (ctx) => ctx.leaveChat());
-
-bot.help((ctx) => {
-  ctx.reply('Send /start to receive a greeting');
-  ctx.reply('Send /keyboard to receive a message with a keyboard');
-  ctx.reply('Send /quit to stop the bot');
 });
 
 bot.on('text', async (ctx) => {
   const text = ctx.message.text.toLowerCase();
+  const lang = detectLanguage(text);
+  if (!lang) {
+    ctx.reply('I don`t support this language');
+    return;
+  }
   const cachedResult = await history.find(text);
   if (cachedResult) {
     ctx.reply(cachedResult);
     return;
   }
-  const result = await translateText(text, { from: 'en', to: 'ka' });
+  const result = await translateText(text, { from: lang, to: 'ka' });
   if (result) {
     ctx.reply(result);
     history.write(text, result);
