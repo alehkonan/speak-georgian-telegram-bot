@@ -1,0 +1,7 @@
+{
+  "records": [
+    { "from": "message", "to": "შეტყობინება" },
+    { "from": "hello", "to": "გამარჯობა" },
+    { "from": "yes", "to": "დიახ" }
+  ]
+}
