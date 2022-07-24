@@ -1,7 +1,1 @@
-{
-  "records": [
-    { "from": "message", "to": "შეტყობინება" },
-    { "from": "hello", "to": "გამარჯობა" },
-    { "from": "yes", "to": "დიახ" }
-  ]
-}
+{"records":[{"from":"message","to":"შეტყობინება"},{"from":"hello","to":"გამარჯობა"},{"from":"yes","to":"დიახ"},{"from":"without sugar","to":"შაქრის გარეშე"},{"from":"no","to":"არა"}]}
