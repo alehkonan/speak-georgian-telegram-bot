@@ -1,9 +1,11 @@
 import { Telegraf } from 'telegraf';
-import { history } from '../services/history.js';
-import { translateText } from '../services/translator.js';
+import { History } from '../models/History.js';
+import { User } from '../models/User.js';
+import { translateText } from '../api/translator.js';
 import { detectLanguage } from '../utils/detectLanguage.js';
 
 const token = process.env.TELEGRAM_API_TOKEN as string;
+const georgianLang = 'ka';
 
 export const bot = new Telegraf(token);
 
@@ -15,20 +17,52 @@ bot.start((ctx) => {
 });
 
 bot.on('text', async (ctx) => {
-  const { text } = ctx.message;
-  const lang = detectLanguage(text);
-  if (!lang) {
-    ctx.reply('I don`t support this language');
-    return;
-  }
-  const result = await history.find(text);
-  if (result?.to) {
-    ctx.reply(result?.to);
-  } else {
-    const translation = await translateText(text, { from: lang, to: 'ka' });
-    if (translation) {
-      ctx.reply(translation);
-      history.write(text, translation);
+  try {
+    const { text, from } = ctx.message;
+    const detectedLang = detectLanguage(text);
+
+    if (!detectedLang) {
+      ctx.reply('I don`t support this language');
+      return;
     }
+
+    const translationInHistory = await History.findOneAndUpdate(
+      { from: text },
+      { $inc: { requested: 1 } }
+    );
+
+    if (translationInHistory) {
+      await ctx.reply(translationInHistory?.to);
+      await User.updateOne(
+        { userId: from.id },
+        { $addToSet: { history: translationInHistory } },
+        { upsert: true }
+      );
+    } else {
+      const { translation, errorMessage } = await translateText(text, {
+        from: detectedLang,
+        to: georgianLang,
+      });
+
+      if (errorMessage) {
+        ctx.reply(errorMessage);
+        return;
+      }
+
+      if (translation) {
+        await ctx.reply(translation);
+        const newHistory = await History.create({
+          from: text,
+          to: translation,
+        });
+        await User.updateOne(
+          { userId: from.id },
+          { $addToSet: { history: newHistory } },
+          { upsert: true }
+        );
+      }
+    }
+  } catch (error) {
+    ctx.reply((error as Error).message);
   }
 });
