@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 import { database } from '../database/index.js';
-import { History } from './History.js';
+import { History, HistoryType } from './History.js';
 
 type UserType = {
   userId: number;
   history: {
-    wordId: string;
+    word: HistoryType;
     requested?: number;
   }[];
 };
@@ -14,7 +14,7 @@ const userSchema = new database.Schema<UserType>({
   userId: { type: Number, required: true },
   history: [
     {
-      wordId: { type: mongoose.Types.ObjectId, ref: History },
+      word: { type: mongoose.Types.ObjectId, ref: History },
       requested: { type: Number, default: 1 },
     },
   ],
