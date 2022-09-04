@@ -37,6 +37,8 @@ bot.on('text', async (ctx) => {
 
       if (user) {
         console.log(`User ${user.id} found in database`);
+        console.log('user: ', JSON.stringify(user));
+        console.log('word in history: ', JSON.stringify(translationInHistory));
         const matchWord = user.history.find(
           (record) => record.word.from === translationInHistory.from
         );
@@ -46,7 +48,7 @@ bot.on('text', async (ctx) => {
             $inc: { 'history.$.requested': 1 },
           });
         } else {
-          console.log(`Word ${matchWord} not found in User`);
+          console.log(`Word ${translationInHistory.from} not found in User`);
           await user.updateOne({
             $push: { history: { word: translationInHistory } },
           });
