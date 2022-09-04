@@ -33,34 +33,18 @@ bot.on('text', async (ctx) => {
 
     if (translationInHistory) {
       await ctx.reply(translationInHistory?.to);
-      await User.findOneAndUpdate(
+      const word = await User.findOneAndUpdate(
         { userId: from.id, 'history.word': translationInHistory },
         { $inc: { 'history.$.requested': 1 } }
       );
 
-      // if (user) {
-      //   console.log(`User ${user.id} found in database`);
-      //   const matchWord = user.history.find(
-      //     ({ word }) => word === translationInHistory
-      //   );
-      //   if (matchWord) {
-      //     console.log(`Word ${matchWord} found in User`);
-      //     await user.updateOne({
-      //       $inc: { 'history.$.requested': 1 },
-      //     });
-      //   } else {
-      //     console.log(`Word ${translationInHistory.from} not found in User`);
-      //     await user.updateOne({
-      //       $push: { history: { word: translationInHistory } },
-      //     });
-      //   }
-      // } else {
-      //   console.log(`User ${from.id} not found in database. Creating new user`);
-      //   await User.create({
-      //     userId: from.id,
-      //     history: [{ word: translationInHistory }],
-      //   });
-      // }
+      if (!word) {
+        await User.updateOne(
+          { userId: from.id },
+          { $push: { history: { word: translationInHistory } } },
+          { upsert: true }
+        );
+      }
     } else {
       const { translation, errorMessage } = await translateText(text, {
         from: detectedLang,
