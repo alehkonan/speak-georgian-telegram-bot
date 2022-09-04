@@ -33,13 +33,44 @@ bot.on('text', async (ctx) => {
 
     if (translationInHistory) {
       await ctx.reply(translationInHistory?.to);
-      await User.updateOne(
-        { userId: from.id },
-        {
-          $addToSet: { history: { word: translationInHistory } },
-        },
-        { upsert: true }
-      );
+      const user = await User.findOne({ userId: from.id });
+
+      if (user) {
+        if (
+          user.history.find((record) => record.word === translationInHistory.id)
+        ) {
+          await User.updateOne(
+            { userId: from.id },
+            {
+              $inc: { 'history.$[word].required': 1 },
+            },
+            {
+              upsert: true,
+              arrayFilters: [{ history: { word: translationInHistory } }],
+            }
+          );
+        } else {
+          await User.updateOne(
+            { userId: from.id },
+            {
+              $push: { history: { word: translationInHistory } },
+            },
+            {
+              upsert: true,
+            }
+          );
+        }
+      } else {
+        await User.updateOne(
+          { userId: from.id },
+          {
+            $push: { history: { word: translationInHistory } },
+          },
+          {
+            upsert: true,
+          }
+        );
+      }
     } else {
       const { translation, errorMessage } = await translateText(text, {
         from: detectedLang,
@@ -59,7 +90,7 @@ bot.on('text', async (ctx) => {
         });
         await User.updateOne(
           { userId: from.id },
-          { $addToSet: { history: { word: newHistory } } },
+          { $push: { history: { word: newHistory } } },
           { upsert: true }
         );
       }

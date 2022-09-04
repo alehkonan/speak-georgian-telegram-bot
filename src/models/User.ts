@@ -6,7 +6,7 @@ type UserType = {
   userId: number;
   history: {
     word: HistoryType;
-    requested: number;
+    requested?: number;
   }[];
 };
 
