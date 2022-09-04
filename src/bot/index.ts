@@ -40,7 +40,7 @@ bot.on('text', async (ctx) => {
         console.log('user: ', JSON.stringify(user));
         console.log('word in history: ', JSON.stringify(translationInHistory));
         const matchWord = user.history.find(
-          (record) => record.word.from === translationInHistory.from
+          ({ wordId }) => wordId === translationInHistory.id
         );
         if (matchWord) {
           console.log(`Word ${matchWord} found in User`);
@@ -50,7 +50,7 @@ bot.on('text', async (ctx) => {
         } else {
           console.log(`Word ${translationInHistory.from} not found in User`);
           await user.updateOne({
-            $push: { history: { word: translationInHistory } },
+            $push: { history: { wordId: translationInHistory.id } },
           });
         }
       } else {
@@ -79,7 +79,7 @@ bot.on('text', async (ctx) => {
         });
         await User.updateOne(
           { userId: from.id },
-          { $push: { history: { word: newHistory } } },
+          { $push: { history: { wordId: newHistory.id } } },
           { upsert: true }
         );
       }
