@@ -4,12 +4,20 @@ import { History, HistoryType } from './History.js';
 
 type UserType = {
   userId: number;
-  history: HistoryType[];
+  history: {
+    word: HistoryType;
+    requested: number;
+  }[];
 };
 
 const userSchema = new database.Schema<UserType>({
   userId: { type: Number, required: true },
-  history: { type: [mongoose.Types.ObjectId], ref: History },
+  history: [
+    {
+      word: { type: [mongoose.Types.ObjectId], ref: History },
+      requested: { type: Number, default: 1 },
+    },
+  ],
 });
 
 export const User = database.model<UserType>('User', userSchema);

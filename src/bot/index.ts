@@ -35,7 +35,9 @@ bot.on('text', async (ctx) => {
       await ctx.reply(translationInHistory?.to);
       await User.updateOne(
         { userId: from.id },
-        { $addToSet: { history: translationInHistory } },
+        {
+          $addToSet: { history: { word: translationInHistory } },
+        },
         { upsert: true }
       );
     } else {
@@ -57,7 +59,7 @@ bot.on('text', async (ctx) => {
         });
         await User.updateOne(
           { userId: from.id },
-          { $addToSet: { history: newHistory } },
+          { $addToSet: { history: { word: newHistory } } },
           { upsert: true }
         );
       }
