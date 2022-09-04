@@ -14,7 +14,7 @@ const userSchema = new database.Schema<UserType>({
   userId: { type: Number, required: true },
   history: [
     {
-      word: { type: [mongoose.Types.ObjectId], ref: History },
+      word: { type: mongoose.Types.ObjectId, ref: History },
       requested: { type: Number, default: 1 },
     },
   ],
