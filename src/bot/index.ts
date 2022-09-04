@@ -38,7 +38,7 @@ bot.on('text', async (ctx) => {
       if (user) {
         console.log(`User ${user.id} found in database`);
         const matchWord = user.history.find(
-          (record) => record.word === translationInHistory
+          (record) => record.word.from === translationInHistory.from
         );
         if (matchWord) {
           console.log(`Word ${matchWord} found in User`);
