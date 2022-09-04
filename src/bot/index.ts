@@ -40,7 +40,7 @@ bot.on('text', async (ctx) => {
         console.log('user: ', JSON.stringify(user));
         console.log('word in history: ', JSON.stringify(translationInHistory));
         const matchWord = user.history.find(
-          ({ word }) => word === translationInHistory.id
+          ({ word }) => word === translationInHistory._id
         );
         if (matchWord) {
           console.log(`Word ${matchWord} found in User`);
